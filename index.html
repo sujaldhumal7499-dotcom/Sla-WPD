@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVA — Shop the Future</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0a0a0a;
+    --white: #f5f2ed;
+    --cream: #ede9e1;
+    --accent: #e8521a;
+    --accent2: #1a3ae8;
+    --muted: #888;
+    --card-bg: #131313;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* CUSTOM CURSOR */
+  .cursor {
+    position: fixed; top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--accent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+  }
+  .cursor-ring {
+    position: fixed; top: 0; left: 0;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(232,82,26,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.18s ease, width 0.3s, height 0.3s;
+  }
+  body:has(a:hover) .cursor, body:has(button:hover) .cursor { width: 20px; height: 20px; background: var(--accent2); }
+  body:has(a:hover) .cursor-ring, body:has(button:hover) .cursor-ring { width: 56px; height: 56px; border-color: rgba(26,58,232,0.4); }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent); }
+  .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+  .nav-links a {
+    color: rgba(245,242,237,0.6);
+    text-decoration: none;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-right { display: flex; align-items: center; gap: 1.5rem; }
+  .cart-btn {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 0.55rem 1.4rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.2s, transform 0.2s;
+  }
+  .cart-btn:hover { background: var(--accent2); transform: skewX(-4deg); }
+  .cart-count {
+    background: var(--white); color: var(--black);
+    border-radius: 50%; width: 18px; height: 18px;
+    font-size: 0.65rem; font-weight: 500;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-left: 6px;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    padding-top: 80px;
+  }
+  .hero-left {
+    display: flex; flex-direction: column; justify-content: center;
+    padding: 6rem 3rem 6rem 4rem;
+    position: relative;
+  }
+  .hero-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.2s forwards;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 9vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.4s forwards;
+  }
+  .hero-title em {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--accent);
+    display: block;
+  }
+  .hero-sub {
+    color: rgba(245,242,237,0.55);
+    font-size: 1rem;
+    line-height: 1.7;
+    max-width: 380px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.6s forwards;
+  }
+  .hero-ctas {
+    display: flex; gap: 1rem; align-items: center;
+    opacity: 0;
+    animation: fadeUp 0.8s 0.8s forwards;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: background 0.2s, transform 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-primary:hover { background: var(--accent2); transform: translateY(-2px); }
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    border: 1px solid rgba(245,242,237,0.25);
+    padding: 1rem 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: none;
+    transition: border-color 0.2s, color 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .btn-ghost:hover { border-color: var(--white); }
+
+  .hero-right {
+    position: relative;
+    overflow: hidden;
+    background: var(--card-bg);
+  }
+  .hero-image-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    height: 100%;
+    gap: 3px;
+  }
+  .hero-img-cell {
+    overflow: hidden;
+    position: relative;
+    opacity: 0;
+    animation: fadeIn 1s forwards;
+  }
+  .hero-img-cell:nth-child(1) { animation-delay: 0.5s; }
+  .hero-img-cell:nth-child(2) { animation-delay: 0.7s; }
+  .hero-img-cell:nth-child(3) { animation-delay: 0.9s; }
+  .hero-img-cell:nth-child(4) { animation-delay: 1.1s; }
+  .hero-img-cell img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.7s ease;
+    filter: saturate(0.8);
+  }
+  .hero-img-cell:hover img { transform: scale(1.08); filter: saturate(1); }
+  .hero-img-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    padding: 1.5rem 1rem 0.8rem;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* TICKER */
+  .ticker-wrap {
+    overflow: hidden;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    padding: 0.8rem 0;
+    background: rgba(255,255,255,0.02);
+  }
+  .ticker {
+    display: flex; gap: 0; white-space: nowrap;
+    animation: ticker 25s linear infinite;
+  }
+  .ticker-item {
+    padding: 0 2.5rem;
+    font-size: 0.7rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(245,242,237,0.35);
+    border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .ticker-item span { color: var(--accent); }
+
+  /* CATEGORIES */
+  .section { padding: 6rem 4rem; }
+  .section-header {
+    display: flex; justify-content: space-between; align-items: flex-end;
+    margin-bottom: 3rem;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .section-title em {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    color: var(--accent);
+  }
+  .see-all {
+    color: rgba(245,242,237,0.5);
+    font-size: 0.75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(245,242,237,0.2);
+    padding-bottom: 2px;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .see-all:hover { color: var(--white); border-color: var(--white); }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-rows: 260px 260px;
+    gap: 3px;
+  }
+  .cat-card {
+    position: relative; overflow: hidden; cursor: none;
+    background: var(--card-bg);
+  }
+  .cat-card:first-child { grid-row: span 2; }
+  .cat-card img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform 0.6s ease, filter 0.4s;
+    filter: brightness(0.7) saturate(0.7);
+  }
+  .cat-card:hover img { transform: scale(1.06); filter: brightness(0.85) saturate(1); }
+  .cat-info {
+    position: absolute; bottom: 1.5rem; left: 1.5rem;
+  }
+  .cat-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .cat-count {
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(245,242,237,0.5);
+    margin-top: 0.3rem;
+  }
+  .cat-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+  }
+  .cat-badge {
+    position: absolute; top: 1rem; right: 1rem;
+    background: var(--accent);
+    color: white; padding: 0.3rem 0.7rem;
+    font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* PRODUCTS */
+  .products-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+  .product-card {
+    background: var(--card-bg);
+    overflow: hidden;
+    position: relative;
+    cursor: none;
+    transition: transform 0.3s;
+  }
+  .product-card:hover { transform: translateY(-4px); }
+  .product-img {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    position: relative;
+    background: #1a1a1a;
+  }
+  .product-img img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+  .product-card:hover .product-img img { transform: scale(1.06); }
+  .product-tag {
+    position: absolute; top: 0.8rem; left: 0.8rem;
+    font-size: 0.55rem; letter-spacing: 2px; text-transform: uppercase;
+    padding: 0.3rem 0.6rem;
+  }
+  .tag-new { background: var(--accent2); color: white; }
+  .tag-hot { background: var(--accent); color: white; }
+  .tag-sale { background: #1a1a1a; color: var(--white); border: 1px solid rgba(255,255,255,0.2); }
+  .product-actions {
+    position: absolute; bottom: -50px; left: 0; right: 0;
+    display: flex; justify-content: center;
+    transition: bottom 0.3s ease;
+    padding: 0 1rem 1rem;
+  }
+  .product-card:hover .product-actions { bottom: 0; }
+  .add-btn {
+    background: var(--white); color: var(--black);
+    border: none; width: 100%;
+    padding: 0.7rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+    cursor: none; transition: background 0.2s;
+  }
+  .add-btn:hover { background: var(--accent); color: white; }
+  .product-info { padding: 1rem; }
+  .product-brand {
+    font-size: 0.6rem; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 0.3rem;
+  }
+  .product-name {
+    font-size: 0.9rem; font-weight: 400;
+    margin-bottom: 0.5rem; line-height: 1.3;
+  }
+  .product-price {
+    display: flex; gap: 0.7rem; align-items: baseline;
+  }
+  .price-current { font-size: 1rem; font-weight: 500; }
+  .price-old { font-size: 0.8rem; color: var(--muted); text-decoration: line-through; }
+  .price-off { font-size: 0.65rem; color: var(--accent); letter-spacing: 1px; }
+
+  /* BANNER */
+  .promo-banner {
+    margin: 0 4rem;
+    background: var(--accent);
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    padding: 3rem 4rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .promo-banner::before {
+    content: 'SALE';
+    position: absolute; right: -30px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18rem;
+    color: rgba(0,0,0,0.1);
+    line-height: 1;
+    pointer-events: none;
+  }
+  .promo-label {
+    font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase;
+    margin-bottom: 0.8rem; opacity: 0.8;
+  }
+  .promo-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 5rem);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .promo-sub { opacity: 0.8; margin-top: 0.5rem; font-size: 0.9rem; }
+  .btn-dark {
+    background: var(--black); color: var(--white);
+    border: none; padding: 1rem 2.5rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; letter-spacing: 2px; text-transform: uppercase;
+    cursor: none; transition: background 0.2s; white-space: nowrap;
+    text-decoration: none; display: inline-block;
+  }
+  .btn-dark:hover { background: #222; }
+
+  /* FEATURES */
+  .features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    margin: 4rem 0 0;
+  }
+  .feature {
+    padding: 2.5rem 3rem;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    text-align: center;
+  }
+  .feature:last-child { border-right: none; }
+  .feature-icon { font-size: 1.8rem; margin-bottom: 1rem; display: block; }
+  .feature-title {
+    font-size: 0.75rem; letter-spacing: 2px; text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .feature-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.5; }
+
+  /* FOOTER */
+  footer {
+    background: #050505;
+    padding: 4rem 4rem 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+  .footer-brand .logo { display: block; margin-bottom: 1rem; }
+  .footer-desc { font-size: 0.85rem; color: var(--muted); line-height: 1.7; max-width: 280px; }
+  .footer-col h4 {
+    font-size: 0.65rem; letter-spacing: 3px; text-transform: uppercase;
+    color: rgba(245,242,237,0.4); margin-bottom: 1.2rem;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+  .footer-col ul a {
+    color: rgba(245,242,237,0.55); font-size: 0.85rem;
+    text-decoration: none; transition: color 0.2s;
+  }
+  .footer-col ul a:hover { color: var(--white); }
+  .footer-bottom {
+    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.75rem;
+    color: rgba(245,242,237,0.3);
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--white); color: var(--black);
+    padding: 0.8rem 2rem; font-size: 0.8rem; letter-spacing: 1px;
+    z-index: 1000; transition: transform 0.3s ease;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* MOBILE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    .hero { grid-template-columns: 1fr; }
+    .hero-right { display: none; }
+    .section { padding: 4rem 1.5rem; }
+    .categories-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .cat-card:first-child { grid-row: span 1; }
+    .products-grid { grid-template-columns: repeat(2, 1fr); }
+    .promo-banner { margin: 0 1.5rem; grid-template-columns: 1fr; gap: 2rem; }
+    .features { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">NO<span>V</span>A</a>
+  <ul class="nav-links">
+    <li><a href="#categories">Shop</a></li>
+    <li><a href="#featured">New In</a></li>
+    <li><a href="#">Brands</a></li>
+    <li><a href="#">Deals</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="cart-btn" onclick="showToast('Opening cart...')">
+      Cart <span class="cart-count" id="cartCount">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-left">
+    <p class="hero-eyebrow">Spring / Summer Collection 2026</p>
+    <h1 class="hero-title">
+      Shop the<br><em>Future</em><br>Now
+    </h1>
+    <p class="hero-sub">Curated fashion, cutting-edge gadgets, and essentials for the way you live — delivered fast, styled better.</p>
+    <div class="hero-ctas">
+      <a href="#categories" class="btn-primary">Explore All</a>
+      <a href="#featured" class="btn-ghost">New Arrivals</a>
+    </div>
+  </div>
+  <div class="hero-right">
+    <div class="hero-image-grid">
+      <div class="hero-img-cell">
+        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80" alt="Watches">
+        <div class="hero-img-label">Watches</div>
+      </div>
+      <div class="hero-img-cell">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500&q=80" alt="Fashion">
+        <div class="hero-img-label">Fashion</div>
+      </div>
+      <div class="hero-img-cell">
+        <img src="https://images.unsplash.com/photo-1583394838336-acd977736f90?w=500&q=80" alt="Audio">
+        <div class="hero-img-label">Audio</div>
+      </div>
+      <div class="hero-img-cell">
+        <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&q=80" alt="Footwear">
+        <div class="hero-img-label">Footwear</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker">
+    <div class="ticker-item">Free shipping over ₹999 <span>✦</span></div>
+    <div class="ticker-item">New arrivals every Monday <span>✦</span></div>
+    <div class="ticker-item">Up to 60% off Summer Sale <span>✦</span></div>
+    <div class="ticker-item">1-day delivery available <span>✦</span></div>
+    <div class="ticker-item">Hassle-free returns <span>✦</span></div>
+    <div class="ticker-item">10,000+ curated products <span>✦</span></div>
+    <div class="ticker-item">Free shipping over ₹999 <span>✦</span></div>
+    <div class="ticker-item">New arrivals every Monday <span>✦</span></div>
+    <div class="ticker-item">Up to 60% off Summer Sale <span>✦</span></div>
+    <div class="ticker-item">1-day delivery available <span>✦</span></div>
+    <div class="ticker-item">Hassle-free returns <span>✦</span></div>
+    <div class="ticker-item">10,000+ curated products <span>✦</span></div>
+  </div>
+</div>
+
+<!-- CATEGORIES -->
+<section class="section" id="categories">
+  <div class="section-header">
+    <h2 class="section-title">Shop by <em>Category</em></h2>
+    <a href="#" class="see-all">All Categories →</a>
+  </div>
+  <div class="categories-grid">
+    <div class="cat-card">
+      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="Fashion">
+      <div class="cat-overlay"></div>
+      <div class="cat-badge">New Season</div>
+      <div class="cat-info">
+        <div class="cat-name">Fashion &<br>Apparel</div>
+        <div class="cat-count">2,400+ Products</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=600&q=80" alt="Gadgets">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-name">Gadgets</div>
+        <div class="cat-count">800+ Products</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80" alt="Footwear">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-name">Footwear</div>
+        <div class="cat-count">1,200+ Products</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="https://images.unsplash.com/photo-1612444530582-fc66183b16f7?w=600&q=80" alt="Audio">
+      <div class="cat-overlay"></div>
+      <div class="cat-badge">Hot</div>
+      <div class="cat-info">
+        <div class="cat-name">Audio</div>
+        <div class="cat-count">340+ Products</div>
+      </div>
+    </div>
+    <div class="cat-card">
+      <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&q=80" alt="Accessories">
+      <div class="cat-overlay"></div>
+      <div class="cat-info">
+        <div class="cat-name">Accessories</div>
+        <div class="cat-count">950+ Products</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="section" id="featured" style="padding-top: 0;">
+  <div class="section-header">
+    <h2 class="section-title"><em>Featured</em> Picks</h2>
+    <a href="#" class="see-all">View All →</a>
+  </div>
+  <div class="products-grid">
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80" alt="Sony Headphones">
+        <span class="product-tag tag-hot">Hot</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Sony WH-1000XM6')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Sony</div>
+        <div class="product-name">WH-1000XM6 Wireless Headphones</div>
+        <div class="product-price">
+          <span class="price-current">₹24,999</span>
+          <span class="price-old">₹32,000</span>
+          <span class="price-off">-22%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&q=80" alt="Jacket">
+        <span class="product-tag tag-new">New</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Bomber Jacket')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Nova Originals</div>
+        <div class="product-name">Oversized Bomber Jacket — Ecru</div>
+        <div class="product-price">
+          <span class="price-current">₹3,499</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500&q=80" alt="Watch">
+        <span class="product-tag tag-sale">Sale</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Minimalist Watch')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Casio</div>
+        <div class="product-name">Minimalist Quartz Watch</div>
+        <div class="product-price">
+          <span class="price-current">₹5,199</span>
+          <span class="price-old">₹7,499</span>
+          <span class="price-off">-31%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=500&q=80" alt="Sneakers">
+        <span class="product-tag tag-new">New</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Air Max Sneakers')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Nike</div>
+        <div class="product-name">Air Max Pulse — White/Volt</div>
+        <div class="product-price">
+          <span class="price-current">₹11,995</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500&q=80" alt="Phone">
+        <span class="product-tag tag-hot">Hot</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Galaxy S25 Ultra')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Samsung</div>
+        <div class="product-name">Galaxy S25 Ultra 256GB</div>
+        <div class="product-price">
+          <span class="price-current">₹1,24,999</span>
+          <span class="price-old">₹1,34,999</span>
+          <span class="price-off">-7%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&q=80" alt="Bag">
+        <span class="product-tag tag-new">New</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Leather Tote')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Fossil</div>
+        <div class="product-name">Heritage Leather Tote Bag</div>
+        <div class="product-price">
+          <span class="price-current">₹8,499</span>
+          <span class="price-old">₹10,999</span>
+          <span class="price-off">-23%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1585386959984-a4155224a1ad?w=500&q=80" alt="Skincare">
+        <span class="product-tag tag-sale">Sale</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('Skincare Set')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">The Ordinary</div>
+        <div class="product-name">Daily Routine Starter Kit</div>
+        <div class="product-price">
+          <span class="price-current">₹1,899</span>
+          <span class="price-old">₹2,499</span>
+          <span class="price-off">-24%</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-img">
+        <img src="https://images.unsplash.com/photo-1593642632559-0c6d3fc62b89?w=500&q=80" alt="Laptop">
+        <span class="product-tag tag-hot">Hot</span>
+        <div class="product-actions">
+          <button class="add-btn" onclick="addToCart('MacBook Air M3')">Add to Cart</button>
+        </div>
+      </div>
+      <div class="product-info">
+        <div class="product-brand">Apple</div>
+        <div class="product-name">MacBook Air 13" M3 — Starlight</div>
+        <div class="product-price">
+          <span class="price-current">₹1,14,900</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- PROMO BANNER -->
+<div class="promo-banner">
+  <div>
+    <p class="promo-label">Limited Time Offer</p>
+    <h2 class="promo-title">Summer Sale<br>Up to 60% Off</h2>
+    <p class="promo-sub">On fashion, footwear & accessories. Ends June 30.</p>
+  </div>
+  <a href="#categories" class="btn-dark">Shop the Sale</a>
+</div>
+
+<!-- FEATURES -->
+<div class="features">
+  <div class="feature">
+    <span class="feature-icon">🚚</span>
+    <div class="feature-title">Free Delivery</div>
+    <div class="feature-desc">On orders above ₹999. Express delivery available.</div>
+  </div>
+  <div class="feature">
+    <span class="feature-icon">↩️</span>
+    <div class="feature-title">Easy Returns</div>
+    <div class="feature-desc">30-day hassle-free returns on all orders.</div>
+  </div>
+  <div class="feature">
+    <span class="feature-icon">🔒</span>
+    <div class="feature-title">Secure Payments</div>
+    <div class="feature-desc">UPI, cards, netbanking & wallets accepted.</div>
+  </div>
+  <div class="feature">
+    <span class="feature-icon">🎁</span>
+    <div class="feature-title">Gift Wrapping</div>
+    <div class="feature-desc">Free gift wrapping on festive orders.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="logo">NO<span style="color:var(--accent)">V</span>A</a>
+      <p class="footer-desc">The one-stop destination for fashion, gadgets, and lifestyle. Curated for the way you live.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Fashion</a></li>
+        <li><a href="#">Gadgets</a></li>
+        <li><a href="#">Footwear</a></li>
+        <li><a href="#">Accessories</a></li>
+        <li><a href="#">Audio</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Track Order</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">Contact Us</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About Nova</a></li>
+        <li><a href="#">Careers</a></li>
+        <li><a href="#">Blog</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 NOVA. All rights reserved.</span>
+    <span>Made with care in India 🇮🇳</span>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Cursor
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top = e.clientY + 'px';
+    setTimeout(() => {
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+    }, 60);
+  });
+
+  // Cart
+  let cartCount = 0;
+  function addToCart(name) {
+    cartCount++;
+    document.getElementById('cartCount').textContent = cartCount;
+    showToast(`"${name}" added to cart!`);
+  }
+
+  // Toast
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // Intersection Observer for subtle scroll reveals
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.product-card, .cat-card, .feature').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>
